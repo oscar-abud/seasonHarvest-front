@@ -77,7 +77,7 @@ function Header({ onMenuToggle }) {
             onClick={() => {
               if (setting.label === 'Cerrar Sesión') handleLogout();
               else if (setting.label === 'Season Harvest') navigate('/app/season-harvest');
-              else if (setting.label === 'Perfil') navigate('/app/perfil');
+              else if (setting.label === 'Perfil') navigate('/app/season-harvest/profile');
               handleCloseUserMenu();
             }}
           >
