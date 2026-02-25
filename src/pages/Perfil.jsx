@@ -21,13 +21,13 @@ const fieldSx = {
 function Perfil() {
   const userData = useUserStore((state) => state.userData)
 
-  const [showPassword, setShowPassword]             = useState(false)
-  const [dialogOpen, setDialogOpen]                 = useState(false)
-  const [editEmail, setEditEmail]                   = useState('')
-  const [editPassword, setEditPassword]             = useState('')
-  const [confirmPassword, setConfirmPassword]       = useState('')
-  const [showEditPassword, setShowEditPassword]     = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editEmail, setEditEmail] = useState('');
+  const [editPassword, setEditPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showEditPassword, setShowEditPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   if (!userData) return null
 
