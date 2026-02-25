@@ -43,7 +43,7 @@ function Login() {
     if (!validate()) return;
     setLoading(true);
     try {
-      const data = await fetchData('login', 'POST', null, { email, password });
+      const data = await fetchData('user/login', 'POST', null, { email, password });
       if (data) {
         setUser(data.user);
         if (data.token) {
