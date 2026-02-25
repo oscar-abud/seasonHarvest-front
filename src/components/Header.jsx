@@ -1,5 +1,8 @@
-import { AppBar, Toolbar, Typography, Button, Box, Tooltip, Avatar, IconButton, Menu, MenuItem } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Box, Tooltip, Avatar, IconButton, Menu, MenuItem, ListItemIcon, Divider } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import AgricultureIcon from '@mui/icons-material/Agriculture';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { useNavigate, useLocation } from 'react-router-dom';
 import useUserStore from '../store/store';
 import { useState } from 'react';
@@ -12,7 +15,11 @@ const navItems = [
   { label: 'Contacto', path: '#contacto' },
 ];
 
-const settings = ['Perfil', 'Season Harvest', 'Cerrar Sesión'];
+const settings = [
+  { label: 'Perfil', icon: <AccountCircleIcon /> },
+  { label: 'Season Harvest', icon: <AgricultureIcon /> },
+  { label: 'Cerrar Sesión', icon: <LogoutIcon />, divider: true },
+];
 
 function Header({ onMenuToggle }) {
   const navigate = useNavigate();
@@ -63,19 +70,25 @@ function Header({ onMenuToggle }) {
         open={Boolean(anchorElUser)}
         onClose={handleCloseUserMenu}
       >
-        {settings.map((setting) => (
+        {settings.map((setting) => [
+          setting.divider && <Divider key={`${setting.label}-divider`} />,
           <MenuItem
-            key={setting}
+            key={setting.label}
             onClick={() => {
-              if (setting === 'Cerrar Sesión') handleLogout();
-              else if (setting === 'Season Harvest') navigate('/app/season-harvest');
-              else if (setting === 'Perfil') navigate('/app/perfil');
+              if (setting.label === 'Cerrar Sesión') handleLogout();
+              else if (setting.label === 'Season Harvest') navigate('/app/season-harvest');
+              else if (setting.label === 'Perfil') navigate('/app/perfil');
               handleCloseUserMenu();
             }}
           >
-            <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
-          </MenuItem>
-        ))}
+            <ListItemIcon sx={{ color: setting.label === 'Cerrar Sesión' ? 'error.main' : 'inherit' }}>
+              {setting.icon}
+            </ListItemIcon>
+            <Typography sx={{ color: setting.label === 'Cerrar Sesión' ? 'error.main' : 'inherit' }}>
+              {setting.label}
+            </Typography>
+          </MenuItem>,
+        ])}
       </Menu>
     </Box>
   ) : (
