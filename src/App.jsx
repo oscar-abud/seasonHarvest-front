@@ -6,6 +6,7 @@ import Test from "./pages/test.jsx";
 import SeasonHarvest from "./pages/SeasonHarvest.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Layout from "./components/UI/layout/Layout.jsx";
+import Perfil from "./pages/Perfil.jsx";
 
 function App() {
   return (
@@ -20,6 +21,14 @@ function App() {
           </ProtectedRoute>
         }>
           <Route index element={<SeasonHarvest />} />
+        </Route>
+
+        <Route path="/app/season-harvest/profile" element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<Perfil />} />
         </Route>
         <Route path="/app/test" element={ <Test /> } />
         <Route path="*" element={ <Home /> } />
