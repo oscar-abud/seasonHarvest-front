@@ -12,6 +12,8 @@ import CloseIcon from '@mui/icons-material/Close'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import useUserStore from '../store/store'
+import { fetchData } from '../service'
+import { toast } from 'sonner'
 
 const fieldSx = {
   '& .MuiOutlinedInput-root': { '&.Mui-focused fieldset': { borderColor: '#005e4d' } },
@@ -20,6 +22,7 @@ const fieldSx = {
 
 function Perfil() {
   const userData = useUserStore((state) => state.userData)
+  const setUser = useUserStore((state) => state.setUser);
 
   const [showPassword, setShowPassword] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -33,14 +36,18 @@ function Perfil() {
 
   const initials = userData.name[0].toUpperCase() + userData.lastname[0].toUpperCase()
 
-  const passwordChanged  = editPassword.length > 0
-  const passwordsMatch   = editPassword === confirmPassword
-  const isSaveDisabled   = passwordChanged && !passwordsMatch
+  const emailEmpty = editEmail.trim() === '';
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editEmail);
+  const passwordChanged = editPassword.length > 0;
+  const passwordsMatch = editPassword === confirmPassword;
+  const passwordEmpty   = editPassword.trim() === '';
+  const hasChanges = editEmail !== userData.email || editPassword !== userData.password;
+  const isSaveDisabled = emailEmpty || !emailValid || passwordEmpty || (passwordChanged && !passwordsMatch) || !hasChanges;
 
   const handleOpenDialog = () => {
     setEditEmail(userData.email)
-    setEditPassword('')
-    setConfirmPassword('')
+    setEditPassword(userData.password)
+    setConfirmPassword(userData.password)
     setShowEditPassword(false)
     setShowConfirmPassword(false)
     setDialogOpen(true)
@@ -48,10 +55,26 @@ function Perfil() {
 
   const handleCloseDialog = () => setDialogOpen(false)
 
-  const handleSave = () => {
+  const handleSave = async (e) => {
     // TODO: conectar con endpoint del backend
-    console.log('Guardar:', { email: editEmail, password: editPassword })
-    setDialogOpen(false)
+    console.log('Guardar:', { email: editEmail, password: editPassword });
+    e.preventDefault();
+    try {
+      const data = await fetchData('user/update', 'PATCH', null, { email: editEmail, password: editPassword });
+      if (data) {
+        setUser(data.user);
+        // Por si en un futuro se agrega token en el response de la api
+        // if (data.token) {
+        //     sessionStorage.clear();
+        //     sessionStorage.setItem('token', JSON.stringify({ token: data.token }))
+        // }
+        toast.success(data.message);
+        setDialogOpen(false)
+      }
+    } catch (error) {
+      console.error('Error en update profile', error)
+      toast.error(error.message || "Hubo un problema al actualizar");
+    }
   }
 
   return (
@@ -78,14 +101,6 @@ function Perfil() {
         <Box sx={{ px: 3, py: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <BadgeIcon sx={{ color: '#005e4d', fontSize: 20, flexShrink: 0 }} />
-            <Box>
-              <Typography variant="caption" color="text.secondary" lineHeight={1}>ID de usuario</Typography>
-              <Typography variant="body2" fontWeight={500} sx={{ wordBreak: 'break-all' }}>{userData._id}</Typography>
-            </Box>
-          </Box>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <EmailIcon sx={{ color: '#005e4d', fontSize: 20 }} />
             <Box>
               <Typography variant="caption" color="text.secondary" lineHeight={1}>Correo electrónico</Typography>
@@ -102,7 +117,7 @@ function Perfil() {
               </Typography>
             </Box>
             <IconButton size="small" onClick={() => setShowPassword((p) => !p)} sx={{ color: '#005e4d' }}>
-              {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+              {showPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
             </IconButton>
           </Box>
 
@@ -162,6 +177,8 @@ function Perfil() {
             size="small"
             value={editEmail}
             onChange={(e) => setEditEmail(e.target.value)}
+            error={!emailEmpty && !emailValid}
+            helperText={!emailEmpty && !emailValid ? 'Ingresa un correo válido' : ''}
             slotProps={{
               input: {
                 startAdornment: <InputAdornment position="start"><EmailIcon sx={{ color: '#005e4d', fontSize: 20 }} /></InputAdornment>,
@@ -177,13 +194,12 @@ function Perfil() {
             size="small"
             value={editPassword}
             onChange={(e) => setEditPassword(e.target.value)}
-            placeholder="Dejar vacío para no cambiar"
             slotProps={{
               input: {
                 startAdornment: <InputAdornment position="start"><LockIcon sx={{ color: '#005e4d', fontSize: 20 }} /></InputAdornment>,
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton size="small" onClick={() => setShowEditPassword((p) => !p)}>
+                    <IconButton size="small" tabIndex={-1} onClick={() => setShowEditPassword((p) => !p)}>
                       {showEditPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
                     </IconButton>
                   </InputAdornment>
@@ -193,36 +209,34 @@ function Perfil() {
             sx={fieldSx}
           />
 
-          {passwordChanged && (
-            <TextField
-              label="Repetir contraseña"
-              type={showConfirmPassword ? 'text' : 'password'}
-              fullWidth
-              size="small"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              error={confirmPassword.length > 0 && !passwordsMatch}
-              helperText={confirmPassword.length > 0 && !passwordsMatch ? 'Las contraseñas no coinciden' : ''}
-              slotProps={{
-                input: {
-                  startAdornment: <InputAdornment position="start"><LockIcon sx={{ color: confirmPassword.length > 0 && !passwordsMatch ? 'error.main' : '#005e4d', fontSize: 20 }} /></InputAdornment>,
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton size="small" onClick={() => setShowConfirmPassword((p) => !p)}>
-                        {showConfirmPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }
-              }}
-              sx={{
-                ...fieldSx,
-                '& .MuiOutlinedInput-root': {
-                  '&.Mui-focused fieldset': { borderColor: confirmPassword.length > 0 && !passwordsMatch ? 'error.main' : '#005e4d' },
-                },
-              }}
-            />
-          )}
+          <TextField
+            label="Repetir contraseña"
+            type={showConfirmPassword ? 'text' : 'password'}
+            fullWidth
+            size="small"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            error={confirmPassword.length > 0 && !passwordsMatch}
+            helperText={confirmPassword.length > 0 && !passwordsMatch ? 'Las contraseñas no coinciden' : ''}
+            slotProps={{
+              input: {
+                startAdornment: <InputAdornment position="start"><LockIcon sx={{ color: confirmPassword.length > 0 && !passwordsMatch ? 'error.main' : '#005e4d', fontSize: 20 }} /></InputAdornment>,
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton size="small" tabIndex={-1} onClick={() => setShowConfirmPassword((p) => !p)}>
+                      {showConfirmPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }
+            }}
+            sx={{
+              ...fieldSx,
+              '& .MuiOutlinedInput-root': {
+                '&.Mui-focused fieldset': { borderColor: confirmPassword.length > 0 && !passwordsMatch ? 'error.main' : '#005e4d' },
+              },
+            }}
+          />
         </DialogContent>
 
         <DialogActions sx={{ px: 3, py: 2.5, gap: 1 }}>
