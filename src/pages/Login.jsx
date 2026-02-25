@@ -151,8 +151,9 @@ function Login() {
                   endAdornment: (
                   <InputAdornment position="end">
                       <IconButton
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
+                        tabIndex={-1}
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
                       >
                       {showPassword ? <Visibility /> : <VisibilityOff />}
                       </IconButton>
