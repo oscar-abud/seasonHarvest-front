@@ -3,6 +3,9 @@ import { Toaster } from "sonner";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Test from "./pages/test.jsx";
+import SeasonHarvest from "./pages/SeasonHarvest.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import Layout from "./components/UI/layout/Layout.jsx";
 
 function App() {
   return (
@@ -11,6 +14,13 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/app" element={ <Home /> } />
+        <Route path="/app/season-harvest" element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<SeasonHarvest />} />
+        </Route>
         <Route path="/app/test" element={ <Test /> } />
         <Route path="*" element={ <Home /> } />
       </Routes>
