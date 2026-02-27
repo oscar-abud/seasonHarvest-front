@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { fetchData } from '../../../service'
 import { Box, Typography, CircularProgress, Chip, IconButton, Tooltip, Button } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
@@ -152,10 +152,10 @@ function Productos() {
     setDialogOpen(true)
   }
 
-  const handleOpenEdit = (row) => {
+  const handleOpenEdit = useCallback((row) => {
     setSelectedProducto(row)
     setDialogOpen(true)
-  }
+  }, [])
 
   const handleClose = () => {
     setDialogOpen(false)
@@ -168,7 +168,7 @@ function Productos() {
     setProductoEditado(prev => !prev)
   }
 
-  const columns = getColumns(handleOpenEdit)
+  const columns = useMemo(() => getColumns(handleOpenEdit), [handleOpenEdit])
 
   return (
     <Box>

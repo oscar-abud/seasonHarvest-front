@@ -103,7 +103,7 @@ function AddEditProducto({ open, onClose, onSuccess, producto = null }) {
         </Box>
       </Box>
 
-      <DialogContent sx={{ pt: 3, pb: 1, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+      <DialogContent sx={{ pt: 3, pb: 2, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
 
         {/* Nombre */}
         <TextField
