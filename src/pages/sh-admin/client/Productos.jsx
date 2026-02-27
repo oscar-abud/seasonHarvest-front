@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { fetchData } from '../../../service'
-import { Box, Typography, CircularProgress, Chip, IconButton, Tooltip } from '@mui/material'
+import { Box, Typography, CircularProgress, Chip, IconButton, Tooltip, Button, Dialog, DialogContent, DialogActions } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { esES } from '@mui/x-data-grid/locales'
 import EditIcon from '@mui/icons-material/Edit'
-import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteIcon from '@mui/icons-material/Delete'
+import AddIcon from '@mui/icons-material/Add'
+import CloseIcon from '@mui/icons-material/Close'
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined'
 
 const formatPrice = (price) =>
@@ -138,6 +140,7 @@ function Productos() {
   const [productos, setProductos] = useState([])
   const [loading, setLoading] = useState(false)
   const [productoEditado, setProductoEditado] = useState(false)
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   useEffect(() => {
     const fetchProductos = async () => {
@@ -156,9 +159,21 @@ function Productos() {
 
   return (
     <Box>
-      <Typography variant="h5" sx={{ color: '#005e4d', fontWeight: 600, mb: 3 }}>
-        Productos
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h5" sx={{ color: '#005e4d', fontWeight: 600 }}>
+          Productos
+        </Typography>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => setDialogOpen(true)}
+          sx={{ textTransform: 'none', backgroundColor: '#005e4d', '&:hover': { backgroundColor: '#004a3d' } }}
+        >
+          Crear producto
+        </Button>
+      </Box>
+
+      {/* TODO: <AddEditProducto open={dialogOpen} onClose={() => setDialogOpen(false)} /> */}
 
       {loading ? (
         <Box sx={{ display: 'flex', flexDirection:'column', justifyContent: 'center', alignItems: 'center', pt: 6, gap: '10px' }}>
