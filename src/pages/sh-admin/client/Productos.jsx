@@ -5,6 +5,7 @@ import { Box, Typography, CircularProgress, Chip, IconButton, Tooltip } from '@m
 import { DataGrid } from '@mui/x-data-grid'
 import { esES } from '@mui/x-data-grid/locales'
 import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined'
 
 const formatPrice = (price) =>
@@ -106,15 +107,27 @@ const columns = [
     align: 'center',
     headerAlign: 'center',
     renderCell: ({ row }) => (
-      <Tooltip title={`Editar '${row.name}'`}>
+      <Box>
         <IconButton
           size="small"
           sx={{ color: '#005e4d' }}
-          onClick={() => { /* TODO: abrir dialog de edición */ }}
+          onClick={() => console.log(row)}
         >
-          <EditIcon fontSize="small" />
+          <Tooltip title={`Editar '${row.name}'`}>
+            <EditIcon fontSize="small" />
+          </Tooltip>
         </IconButton>
-      </Tooltip>
+
+        <IconButton
+          size="small"
+          sx={{ color: '#db471ae0' }}
+          onClick={() => console.log(row)}
+        >
+          <Tooltip title={`Eliminar '${row.name}'`}>
+            <DeleteIcon fontSize="small" />
+          </Tooltip>
+        </IconButton>
+      </Box>
     ),
   },
 ]
