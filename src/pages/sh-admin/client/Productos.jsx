@@ -106,13 +106,15 @@ const columns = [
     align: 'center',
     headerAlign: 'center',
     renderCell: ({ row }) => (
-      <IconButton
-        size="small"
-        sx={{ color: '#005e4d' }}
-        onClick={() => { /* TODO: abrir dialog de edición */ }}
-      >
-        <EditIcon fontSize="small" />
-      </IconButton>
+      <Tooltip title={`Editar '${row.name}'`}>
+        <IconButton
+          size="small"
+          sx={{ color: '#005e4d' }}
+          onClick={() => { /* TODO: abrir dialog de edición */ }}
+        >
+          <EditIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
     ),
   },
 ]
@@ -170,11 +172,16 @@ function Productos() {
             '& .MuiDataGrid-columnHeader': {
               backgroundColor: '#005e4d',
               color: 'white',
-              fontWeight: 600,
+              fontWeight: 600
             },
-            '& .MuiDataGrid-sortIcon': { color: 'white' },
+            '& .MuiDataGrid-sortIcon': { color: '#005e4d' },
             '& .MuiDataGrid-menuIconButton': { color: 'white' },
             '& .MuiDataGrid-columnSeparator': { color: 'rgba(255,255,255,0.3)' },
+            // Badge que indica prioridad de orden cuando hay múltiples columnas ordenadas
+            '& .MuiDataGrid-columnHeader .MuiBadge-badge': {
+              backgroundColor: 'rgba(255,255,255,0.25)',
+              color: 'white',
+            },
           }}
         />
       )}
