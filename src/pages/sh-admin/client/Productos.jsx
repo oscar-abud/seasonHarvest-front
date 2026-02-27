@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react'
-import { toast } from 'sonner'
 import { fetchData } from '../../../service'
-import { Box, Typography, CircularProgress, Chip, IconButton, Tooltip, Button, Dialog, DialogContent, DialogActions } from '@mui/material'
+import { Box, Typography, CircularProgress, Chip, IconButton, Tooltip, Button } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { esES } from '@mui/x-data-grid/locales'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
-import CloseIcon from '@mui/icons-material/Close'
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined'
+import AddEditProducto from '../../../components/client/productos/AddEditProducto'
 
 const formatPrice = (price) =>
   price.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' });
@@ -20,7 +19,7 @@ const formatCantidad = (cantidad) => {
     return cantidad; // Si es un entero como 1, 2 o 3, lo deja igual
   };
 
-const columns = [
+const getColumns = (onEdit) => [
   {
     field: 'name',
     headerName: 'Nombre',
@@ -42,7 +41,7 @@ const columns = [
     align: 'left',
     valueFormatter: (value) => formatPrice(value),
     renderCell: ({ value }) => (
-      <Typography variant="body2" fontWeight={600} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, height: '100%', color: '#005e4d' }}>
+      <Typography variant="body2" fontWeight={600} sx={{ display: 'flex', alignItems: 'center', height: '100%', color: '#005e4d' }}>
         {formatPrice(value)}
       </Typography>
     ),
@@ -53,7 +52,6 @@ const columns = [
     width: 130,
     align: 'center',
     headerAlign: 'center',
-    // valueGetter retorna el conteo para que el orden funcione correctamente
     valueGetter: (value) => value?.length ?? 0,
     renderCell: ({ value, row }) => (
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
@@ -102,7 +100,7 @@ const columns = [
   {
     field: 'acciones',
     headerName: 'Acciones',
-    width: 100,
+    width: 110,
     sortable: false,
     filterable: false,
     disableColumnMenu: true,
@@ -110,25 +108,16 @@ const columns = [
     headerAlign: 'center',
     renderCell: ({ row }) => (
       <Box>
-        <IconButton
-          size="small"
-          sx={{ color: '#005e4d' }}
-          onClick={() => console.log(row)}
-        >
-          <Tooltip title={`Editar '${row.name}'`}>
+        <Tooltip title={`Editar '${row.name}'`}>
+          <IconButton size="small" sx={{ color: '#005e4d' }} onClick={() => onEdit(row)}>
             <EditIcon fontSize="small" />
-          </Tooltip>
-        </IconButton>
-
-        <IconButton
-          size="small"
-          sx={{ color: '#db471ae0' }}
-          onClick={() => console.log(row)}
-        >
-          <Tooltip title={`Eliminar '${row.name}'`}>
+          </IconButton>
+        </Tooltip>
+        <Tooltip title={`Eliminar '${row.name}'`}>
+          <IconButton size="small" sx={{ color: '#db471a' }} onClick={() => console.log('Eliminar:', row)}>
             <DeleteIcon fontSize="small" />
-          </Tooltip>
-        </IconButton>
+          </IconButton>
+        </Tooltip>
       </Box>
     ),
   },
@@ -141,6 +130,7 @@ function Productos() {
   const [loading, setLoading] = useState(false)
   const [productoEditado, setProductoEditado] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [selectedProducto, setSelectedProducto] = useState(null)
 
   useEffect(() => {
     const fetchProductos = async () => {
@@ -157,6 +147,29 @@ function Productos() {
     fetchProductos()
   }, [productoEditado])
 
+  const handleOpenCreate = () => {
+    setSelectedProducto(null)
+    setDialogOpen(true)
+  }
+
+  const handleOpenEdit = (row) => {
+    setSelectedProducto(row)
+    setDialogOpen(true)
+  }
+
+  const handleClose = () => {
+    setDialogOpen(false)
+    setSelectedProducto(null)
+  }
+
+  // Llamar después de crear/editar para forzar el re-fetch de la tabla
+  const handleSuccess = () => {
+    handleClose()
+    setProductoEditado(prev => !prev)
+  }
+
+  const columns = getColumns(handleOpenEdit)
+
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -166,19 +179,24 @@ function Productos() {
         <Button
           variant="contained"
           startIcon={<AddIcon />}
-          onClick={() => setDialogOpen(true)}
+          onClick={handleOpenCreate}
           sx={{ textTransform: 'none', backgroundColor: '#005e4d', '&:hover': { backgroundColor: '#004a3d' } }}
         >
           Crear producto
         </Button>
       </Box>
 
-      {/* TODO: <AddEditProducto open={dialogOpen} onClose={() => setDialogOpen(false)} /> */}
+      <AddEditProducto
+        open={dialogOpen}
+        onClose={handleClose}
+        onSuccess={handleSuccess}
+        producto={selectedProducto}
+      />
 
       {loading ? (
-        <Box sx={{ display: 'flex', flexDirection:'column', justifyContent: 'center', alignItems: 'center', pt: 6, gap: '10px' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', pt: 6, gap: '10px' }}>
           <CircularProgress sx={{ color: '#005e4d' }} />
-          <Typography variant='h5' sx={{ color: '#005e4d', fontWeight: 600, mb: 3 }}>
+          <Typography variant="h5" sx={{ color: '#005e4d', fontWeight: 600, mb: 3 }}>
             Cargando...
           </Typography>
         </Box>
@@ -200,12 +218,11 @@ function Productos() {
             '& .MuiDataGrid-columnHeader': {
               backgroundColor: '#005e4d',
               color: 'white',
-              fontWeight: 600
+              fontWeight: 600,
             },
             '& .MuiDataGrid-sortIcon': { color: '#005e4d' },
             '& .MuiDataGrid-menuIconButton': { color: 'white' },
             '& .MuiDataGrid-columnSeparator': { color: 'rgba(255,255,255,0.3)' },
-            // Badge que indica prioridad de orden cuando hay múltiples columnas ordenadas
             '& .MuiDataGrid-columnHeader .MuiBadge-badge': {
               backgroundColor: 'rgba(255,255,255,0.25)',
               color: 'white',
