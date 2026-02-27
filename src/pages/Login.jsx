@@ -54,7 +54,8 @@ function Login() {
       }
     } catch (error) {
       console.error('Error en el login', error);
-      toast.error(error);
+      const mensajeError = error.message || "Error al iniciar sesión";
+      toast.error(mensajeError);
     } finally {
       setLoading(false);
     }

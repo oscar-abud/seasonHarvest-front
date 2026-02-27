@@ -3,10 +3,10 @@ import { Toaster } from "sonner";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Test from "./pages/test.jsx";
-import SeasonHarvest from "./pages/SeasonHarvest.jsx";
+import SeasonHarvest from "./pages/sh-admin/SeasonHarvest.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Layout from "./components/UI/layout/Layout.jsx";
-import Perfil from "./pages/Perfil.jsx";
+import Perfil from "./pages/sh-admin/Perfil.jsx";
 
 function App() {
   return (

@@ -11,8 +11,8 @@ import EditIcon from '@mui/icons-material/Edit'
 import CloseIcon from '@mui/icons-material/Close'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
-import useUserStore from '../store/store'
-import { fetchData } from '../service'
+import useUserStore from '../../store/store'
+import { fetchData } from '../../service'
 import { toast } from 'sonner'
 
 const fieldSx = {
