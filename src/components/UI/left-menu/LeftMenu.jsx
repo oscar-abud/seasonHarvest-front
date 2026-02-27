@@ -23,7 +23,7 @@ import PeopleIcon from '@mui/icons-material/People'
 import PersonIcon from '@mui/icons-material/Person'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import ReplayIcon from '@mui/icons-material/Replay';
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import Logo from '../../../assets/logo.png'
 
 const drawerWidth = 240
@@ -80,7 +80,7 @@ const menuItems = [
     icon: <PeopleIcon />,
     children: [
       { label: 'Clientes', icon: <PersonIcon />, path: '/app/season-harvest/clientes' },
-      { label: 'Productos', icon: <ShoppingCartIcon />, path: '/app/season-harvest/productos' },
+      { label: 'Productos', icon: <ShoppingCartIcon />, path: '/app/season-harvest/cliente-productos' },
     ],
   },
   { label: 'Reportes', icon: <BarChartIcon />, path: '/app/season-harvest/reportes' },
@@ -89,9 +89,17 @@ const menuItems = [
 
 function LeftMenu({ open, handleDrawerClose }) {
   const navigate = useNavigate()
+  const location = useLocation()
   const [openSubmenus, setOpenSubmenus] = useState({})
   const [popoverAnchor, setPopoverAnchor] = useState(null)
   const [activeItem, setActiveItem] = useState(null)
+
+  // Exact match para rutas raíz que son prefijo de otras, startsWith para el resto
+  const isActive = (path) => {
+    if (path === '/app' || path === '/app/season-harvest') return location.pathname === path
+    return location.pathname.startsWith(path)
+  }
+  const hasActiveChild = (children) => children?.some((c) => isActive(c.path))
 
   const toggleSubmenu = (label) => {
     setOpenSubmenus((prev) => ({ ...prev, [label]: !prev[label] }))
@@ -133,50 +141,69 @@ function LeftMenu({ open, handleDrawerClose }) {
           <React.Fragment key={item.label}>
 
             {/* Item principal */}
-            <ListItem disablePadding sx={{ display: 'block' }}>
-              <Tooltip title={!open ? item.label : ''} placement="right">
-                <ListItemButton
-                  onClick={(e) => {
-                    if (item.children) {
-                      open ? toggleSubmenu(item.label) : handleOpenPopover(e, item)
-                    } else {
-                      navigate(item.path)
-                    }
-                  }}
-                  sx={{ minHeight: 48, justifyContent: open ? 'initial' : 'center', px: 2.5 }}
-                >
-                  <ListItemIcon
-                    sx={{ minWidth: 0, mr: open ? 3 : 'auto', justifyContent: 'center', color: '#005e4d' }}
-                  >
-                    {item.icon}
-                  </ListItemIcon>
-                  <ListItemText primary={item.label} sx={{ opacity: open ? 1 : 0 }} />
-                  {item.children && open && (
-                    openSubmenus[item.label] ? <ExpandLessIcon /> : <ExpandMoreIcon />
-                  )}
-                </ListItemButton>
-              </Tooltip>
-            </ListItem>
+            {(() => {
+              const active = item.children ? hasActiveChild(item.children) : isActive(item.path)
+              return (
+                <ListItem disablePadding sx={{ display: 'block' }}>
+                  <Tooltip title={!open ? item.label : ''} placement="right">
+                    <ListItemButton
+                      onClick={(e) => {
+                        if (item.children) {
+                          open ? toggleSubmenu(item.label) : handleOpenPopover(e, item)
+                        } else {
+                          navigate(item.path)
+                        }
+                      }}
+                      sx={{
+                        minHeight: 48, justifyContent: open ? 'initial' : 'center', px: 2.5,
+                        ...(active && { backgroundColor: '#005e4d', '&:hover': { backgroundColor: '#004a3d' } }),
+                      }}
+                    >
+                      <ListItemIcon
+                        sx={{ minWidth: 0, mr: open ? 3 : 'auto', justifyContent: 'center', color: active ? 'white' : '#005e4d' }}
+                      >
+                        {item.icon}
+                      </ListItemIcon>
+                      <ListItemText primary={item.label} sx={{ opacity: open ? 1 : 0, '& .MuiListItemText-primary': { color: active ? 'white' : 'inherit', fontWeight: active ? 600 : 400 } }} />
+                      {item.children && open && (
+                        openSubmenus[item.label]
+                          ? <ExpandLessIcon sx={{ color: active ? 'white' : 'inherit' }} />
+                          : <ExpandMoreIcon sx={{ color: active ? 'white' : 'inherit' }} />
+                      )}
+                    </ListItemButton>
+                  </Tooltip>
+                </ListItem>
+              )
+            })()}
 
             {/* Submenu collapse (drawer abierto) */}
             {item.children && (
               <Collapse in={open && !!openSubmenus[item.label]} timeout="auto" unmountOnExit>
                 <List disablePadding>
-                  {item.children.map((child) => (
-                    <ListItem key={child.label} disablePadding sx={{ display: 'block' }}>
-                      <ListItemButton onClick={() => navigate(child.path)} sx={{ minHeight: 40, pl: 4 }}>
-                        <ListItemIcon
-                          sx={{ minWidth: 0, mr: 2, justifyContent: 'center', color: '#005e4d', opacity: 0.8 }}
+                  {item.children.map((child) => {
+                    const childActive = isActive(child.path)
+                    return (
+                      <ListItem key={child.label} disablePadding sx={{ display: 'block' }}>
+                        <ListItemButton
+                          onClick={() => navigate(child.path)}
+                          sx={{
+                            minHeight: 40, pl: 4,
+                            ...(childActive && { backgroundColor: '#005e4d', '&:hover': { backgroundColor: '#004a3d' } }),
+                          }}
                         >
-                          {child.icon}
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={child.label}
-                          primaryTypographyProps={{ fontSize: '0.875rem' }}
-                        />
-                      </ListItemButton>
-                    </ListItem>
-                  ))}
+                          <ListItemIcon
+                            sx={{ minWidth: 0, mr: 2, justifyContent: 'center', color: childActive ? 'white' : '#005e4d', opacity: childActive ? 1 : 0.8 }}
+                          >
+                            {child.icon}
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={child.label}
+                            sx={{ '& .MuiListItemText-primary': { fontSize: '0.875rem', color: childActive ? 'white' : 'inherit', fontWeight: childActive ? 600 : 400 } }}
+                          />
+                        </ListItemButton>
+                      </ListItem>
+                    )
+                  })}
                 </List>
               </Collapse>
             )}
@@ -199,18 +226,27 @@ function LeftMenu({ open, handleDrawerClose }) {
         </Typography>
         <Divider />
         <List dense disablePadding sx={{ minWidth: 160 }}>
-          {activeItem?.children.map((child) => (
-            <ListItemButton
-              key={child.label}
-              onClick={() => { navigate(child.path); handleClosePopover() }}
-              sx={{ px: 2, py: 1 }}
-            >
-              <ListItemIcon sx={{ minWidth: 32, color: '#005e4d' }}>
-                {child.icon}
-              </ListItemIcon>
-              <ListItemText primary={child.label} primaryTypographyProps={{ fontSize: '0.875rem' }} />
-            </ListItemButton>
-          ))}
+          {activeItem?.children.map((child) => {
+            const childActive = isActive(child.path)
+            return (
+              <ListItemButton
+                key={child.label}
+                onClick={() => { navigate(child.path); handleClosePopover() }}
+                sx={{
+                  px: 2, py: 1,
+                  ...(childActive && { backgroundColor: '#005e4d', '&:hover': { backgroundColor: '#004a3d' } }),
+                }}
+              >
+                <ListItemIcon sx={{ minWidth: 32, color: childActive ? 'white' : '#005e4d' }}>
+                  {child.icon}
+                </ListItemIcon>
+                <ListItemText
+                  primary={child.label}
+                  sx={{ '& .MuiListItemText-primary': { fontSize: '0.875rem', color: childActive ? 'white' : 'inherit', fontWeight: childActive ? 600 : 400 } }}
+                />
+              </ListItemButton>
+            )
+          })}
         </List>
       </Popover>
 
