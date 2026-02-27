@@ -1,0 +1,185 @@
+import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
+import { fetchData } from '../../../service'
+import { Box, Typography, CircularProgress, Chip, IconButton, Tooltip } from '@mui/material'
+import { DataGrid } from '@mui/x-data-grid'
+import { esES } from '@mui/x-data-grid/locales'
+import EditIcon from '@mui/icons-material/Edit'
+import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined'
+
+const formatPrice = (price) =>
+  price.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' });
+
+const formatCantidad = (cantidad) => {
+    if (cantidad === 0.25) return "1/4";
+    if (cantidad === 0.5) return "1/2";
+    if (cantidad === 0.75) return "3/4";
+    return cantidad; // Si es un entero como 1, 2 o 3, lo deja igual
+  };
+
+const columns = [
+  {
+    field: 'name',
+    headerName: 'Nombre',
+    flex: 1,
+    minWidth: 160,
+    renderCell: ({ value }) => (
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, height: '100%' }}>
+        <Inventory2OutlinedIcon sx={{ color: '#005e4d', fontSize: 18 }} />
+        <Typography variant="body2" fontWeight={500}>{value}</Typography>
+      </Box>
+    ),
+  },
+  {
+    field: 'price',
+    headerName: 'Precio',
+    width: 150,
+    type: 'number',
+    headerAlign: 'left',
+    align: 'left',
+    valueFormatter: (value) => formatPrice(value),
+    renderCell: ({ value }) => (
+      <Typography variant="body2" fontWeight={600} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, height: '100%', color: '#005e4d' }}>
+        {formatPrice(value)}
+      </Typography>
+    ),
+  },
+  {
+    field: 'productos',
+    headerName: 'Contenido',
+    width: 130,
+    align: 'center',
+    headerAlign: 'center',
+    // valueGetter retorna el conteo para que el orden funcione correctamente
+    valueGetter: (value) => value?.length ?? 0,
+    renderCell: ({ value, row }) => (
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+        <Tooltip
+          arrow
+          title={
+            <Box sx={{ p: 0.5 }}>
+              {row.productos.map((item) => (
+                <Typography key={item._id} variant="body2">
+                  • {item.name} — {formatCantidad(item.cantidad)} {item.tipo}
+                </Typography>
+              ))}
+            </Box>
+          }
+        >
+          <Chip
+            label={`${value} items`}
+            size="small"
+            sx={{ cursor: 'pointer', backgroundColor: '#e8f5e9', color: '#005e4d', fontWeight: 600 }}
+          />
+        </Tooltip>
+      </Box>
+    ),
+  },
+  {
+    field: 'state',
+    headerName: 'Estado',
+    width: 120,
+    type: 'boolean',
+    align: 'center',
+    headerAlign: 'center',
+    renderCell: ({ value }) => (
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+        <Chip
+          label={value ? 'Activo' : 'Inactivo'}
+          size="small"
+          sx={{
+            backgroundColor: value ? '#e8f5e9' : '#fce4ec',
+            color: value ? '#005e4d' : '#c62828',
+            fontWeight: 600,
+          }}
+        />
+      </Box>
+    ),
+  },
+  {
+    field: 'acciones',
+    headerName: 'Acciones',
+    width: 100,
+    sortable: false,
+    filterable: false,
+    disableColumnMenu: true,
+    align: 'center',
+    headerAlign: 'center',
+    renderCell: ({ row }) => (
+      <IconButton
+        size="small"
+        sx={{ color: '#005e4d' }}
+        onClick={() => { /* TODO: abrir dialog de edición */ }}
+      >
+        <EditIcon fontSize="small" />
+      </IconButton>
+    ),
+  },
+]
+
+function Productos() {
+  const url = 'productos-clientes'
+
+  const [productos, setProductos] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [productoEditado, setProductoEditado] = useState(false)
+
+  useEffect(() => {
+    const fetchProductos = async () => {
+      try {
+        setLoading(true)
+        const res = await fetchData(url, 'GET')
+        setProductos(res)
+      } catch (error) {
+        console.error(error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProductos()
+  }, [productoEditado])
+
+  return (
+    <Box>
+      <Typography variant="h5" sx={{ color: '#005e4d', fontWeight: 600, mb: 3 }}>
+        Productos
+      </Typography>
+
+      {loading ? (
+        <Box sx={{ display: 'flex', flexDirection:'column', justifyContent: 'center', alignItems: 'center', pt: 6, gap: '10px' }}>
+          <CircularProgress sx={{ color: '#005e4d' }} />
+          <Typography variant='h5' sx={{ color: '#005e4d', fontWeight: 600, mb: 3 }}>
+            Cargando...
+          </Typography>
+        </Box>
+      ) : (
+        <DataGrid
+          rows={productos}
+          columns={columns}
+          getRowId={(row) => row._id}
+          // checkboxSelection  ← listo para selección múltiple
+          localeText={esES.components.MuiDataGrid.defaultProps.localeText}
+          disableRowSelectionOnClick
+          initialState={{
+            pagination: { paginationModel: { pageSize: 5 } },
+          }}
+          pageSizeOptions={[5, 10, 25]}
+          sx={{
+            borderRadius: 2,
+            boxShadow: 2,
+            '& .MuiDataGrid-columnHeader': {
+              backgroundColor: '#005e4d',
+              color: 'white',
+              fontWeight: 600,
+            },
+            '& .MuiDataGrid-sortIcon': { color: 'white' },
+            '& .MuiDataGrid-menuIconButton': { color: 'white' },
+            '& .MuiDataGrid-columnSeparator': { color: 'rgba(255,255,255,0.3)' },
+          }}
+        />
+      )}
+    </Box>
+  )
+}
+
+export default Productos
