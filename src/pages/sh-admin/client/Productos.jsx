@@ -9,6 +9,7 @@ import AddIcon from '@mui/icons-material/Add'
 import SearchIcon from '@mui/icons-material/Search'
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined'
 import AddEditProducto from '../../../components/client/productos/AddEditProducto'
+import DeleteProductoDialog from '../../../components/client/productos/DeleteProductoDialog'
 import { toast } from 'sonner'
 import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 
@@ -22,7 +23,7 @@ const formatCantidad = (cantidad) => {
     return cantidad; // Si es un entero como 1, 2 o 3, lo deja igual
   };
 
-const getColumns = (onEdit) => [
+const getColumns = (onEdit, onDelete) => [
   {
     field: 'name',
     headerName: 'Nombre',
@@ -117,7 +118,7 @@ const getColumns = (onEdit) => [
           </IconButton>
         </Tooltip>
         <Tooltip title={`Eliminar '${row.name}'`}>
-          <IconButton size="small" sx={{ color: '#db471a' }} onClick={() => console.log('Eliminar:', row)}>
+          <IconButton size="small" sx={{ color: '#db471a' }} onClick={() => onDelete(row)}>
             <DeleteIcon fontSize="small" />
           </IconButton>
         </Tooltip>
@@ -133,7 +134,8 @@ function Productos() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedProducto, setSelectedProducto] = useState(null)
   const [filtroActivo, setFiltroActivo] = useState(true)
-  const [search, setSearch] = useState(false);
+  const [search, setSearch] = useState(false)
+  const [deleteDialog, setDeleteDialog] = useState({ open: false, producto: null })
 
   const url = filtroActivo ? 'productos-clientes' : 'productos-clientes/disabled';
 
@@ -174,7 +176,20 @@ function Productos() {
     setProductoEditado(prev => !prev)
   }
 
-  const columns = useMemo(() => getColumns(handleOpenEdit), [handleOpenEdit])
+  const handleOpenDelete = useCallback((row) => {
+    setDeleteDialog({ open: true, producto: row })
+  }, [])
+
+  const handleCloseDelete = () => {
+    setDeleteDialog({ open: false, producto: null })
+  }
+
+  const handleDeleteSuccess = () => {
+    handleCloseDelete()
+    setProductoEditado(prev => !prev)
+  }
+
+  const columns = useMemo(() => getColumns(handleOpenEdit, handleOpenDelete), [handleOpenEdit, handleOpenDelete])
 
   return (
     <Box>
@@ -221,6 +236,13 @@ function Productos() {
         onClose={handleClose}
         onSuccess={handleSuccess}
         producto={selectedProducto}
+      />
+
+      <DeleteProductoDialog
+        open={deleteDialog.open}
+        producto={deleteDialog.producto}
+        onClose={handleCloseDelete}
+        onSuccess={handleDeleteSuccess}
       />
 
       {loading ? (
