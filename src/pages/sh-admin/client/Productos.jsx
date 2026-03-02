@@ -8,6 +8,8 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined'
 import AddEditProducto from '../../../components/client/productos/AddEditProducto'
+import { toast } from 'sonner'
+import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 
 const formatPrice = (price) =>
   price.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' });
@@ -139,7 +141,8 @@ function Productos() {
         const res = await fetchData(url, 'GET')
         setProductos(res)
       } catch (error) {
-        console.error(error)
+        console.error(error);
+        toast.error(error);
       } finally {
         setLoading(false)
       }
@@ -200,7 +203,13 @@ function Productos() {
             Cargando...
           </Typography>
         </Box>
-      ) : (
+      ) : productos.length === 0 ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', pt: 6, gap: '10px' }}>
+              <Typography variant="h5" sx={{ color: '#005e4d', fontWeight: 600, mb: 3 }}>
+                 ¡No hay datos para mostrar!
+              </Typography>
+              <SentimentVeryDissatisfiedIcon sx={{ color: '#005e4d', fontSize: '100px' }} />
+            </Box>) : (
         <DataGrid
           rows={productos}
           columns={columns}
