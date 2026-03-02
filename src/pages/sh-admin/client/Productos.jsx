@@ -225,6 +225,7 @@ function Productos() {
             startIcon={<SearchIcon />}
             sx={{ textTransform: 'none', borderColor: '#005e4d', color: '#005e4d', backgroundColor: 'white', '&:hover': { backgroundColor: '#e8f5e9', borderColor: '#005e4d' } }}
             onClick={() => setSearch(!search)}
+            loading={loading}
           >
             Buscar
           </Button>
@@ -253,12 +254,13 @@ function Productos() {
           </Typography>
         </Box>
       ) : productos.length === 0 ? (
-            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', pt: 6, gap: '10px' }}>
-              <Typography variant="h5" sx={{ color: '#005e4d', fontWeight: 600, mb: 3 }}>
-                 ¡No hay datos para mostrar!
-              </Typography>
-              <SentimentVeryDissatisfiedIcon sx={{ color: '#005e4d', fontSize: '100px' }} />
-            </Box>) : (
+          <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', pt: 6, gap: '10px' }}>
+            <Typography variant="h5" sx={{ color: '#005e4d', fontWeight: 600, mb: 3 }}>
+               ¡No hay productos para mostrar!
+            </Typography>
+            <SentimentVeryDissatisfiedIcon sx={{ color: '#005e4d', fontSize: '100px' }} />
+          </Box>) 
+      : (
         <DataGrid
           rows={productos}
           columns={columns}
