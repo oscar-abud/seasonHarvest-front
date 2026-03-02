@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { fetchData } from '../../../service'
-import { Box, Typography, CircularProgress, Chip, IconButton, Tooltip, Button } from '@mui/material'
+import { Box, Typography, CircularProgress, Chip, IconButton, Tooltip, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { esES } from '@mui/x-data-grid/locales'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
+import SearchIcon from '@mui/icons-material/Search'
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined'
 import AddEditProducto from '../../../components/client/productos/AddEditProducto'
 import { toast } from 'sonner'
@@ -126,13 +127,15 @@ const getColumns = (onEdit) => [
 ]
 
 function Productos() {
-  const url = 'productos-clientes'
-
   const [productos, setProductos] = useState([])
   const [loading, setLoading] = useState(false)
   const [productoEditado, setProductoEditado] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedProducto, setSelectedProducto] = useState(null)
+  const [filtroActivo, setFiltroActivo] = useState(true)
+  const [search, setSearch] = useState(false);
+
+  const url = filtroActivo ? 'productos-clientes' : 'productos-clientes/disabled';
 
   useEffect(() => {
     const fetchProductos = async () => {
@@ -148,7 +151,7 @@ function Productos() {
       }
     }
     fetchProductos()
-  }, [productoEditado])
+  }, [productoEditado, search])
 
   const handleOpenCreate = () => {
     setSelectedProducto(null)
@@ -175,18 +178,42 @@ function Productos() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5" sx={{ color: '#005e4d', fontWeight: 600 }}>
-          Productos
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleOpenCreate}
-          sx={{ textTransform: 'none', backgroundColor: '#005e4d', '&:hover': { backgroundColor: '#004a3d' } }}
-        >
-          Crear producto
-        </Button>
+      <Box sx={{ mb: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h4" sx={{ color: '#005e4d', fontWeight: 600 }}>
+            Productos
+          </Typography>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleOpenCreate}
+            sx={{ textTransform: 'none', backgroundColor: '#005e4d', '&:hover': { backgroundColor: '#004a3d' } }}
+          >
+            Crear producto
+          </Button>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <FormControl size="small" sx={{ minWidth: 120 }}>
+            <InputLabel>Activo</InputLabel>
+            <Select
+              value={filtroActivo}
+              label="Activo"
+              onChange={(e) => setFiltroActivo(e.target.value)}
+              sx={{ backgroundColor: 'white' }}
+            >
+              <MenuItem value={true}>Si</MenuItem>
+              <MenuItem value={false}>No</MenuItem>
+            </Select>
+          </FormControl>
+          <Button
+            variant="outlined"
+            startIcon={<SearchIcon />}
+            sx={{ textTransform: 'none', borderColor: '#005e4d', color: '#005e4d', backgroundColor: 'white', '&:hover': { backgroundColor: '#e8f5e9', borderColor: '#005e4d' } }}
+            onClick={() => setSearch(!search)}
+          >
+            Buscar
+          </Button>
+        </Box>
       </Box>
 
       <AddEditProducto
