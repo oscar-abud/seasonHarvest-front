@@ -8,6 +8,8 @@ import CloseIcon from '@mui/icons-material/Close'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined'
+import { fetchData } from '../../../service'
+import { toast } from 'sonner'
 
 const fieldSx = {
   '& .MuiOutlinedInput-root': { '&.Mui-focused fieldset': { borderColor: '#005e4d' } },
@@ -18,6 +20,7 @@ const TIPOS = ['kg', 'un', 'trozos']
 
 function AddEditProducto({ open, onClose, onSuccess, producto = null }) {
   const isEdit = Boolean(producto?._id)
+  const url = 'productos-clientes'
 
   const [name, setName] = useState('')
   const [price, setPrice] = useState('')
@@ -51,17 +54,34 @@ function AddEditProducto({ open, onClose, onSuccess, producto = null }) {
     setItems(prev => prev.map((item, i) => i === index ? { ...item, [field]: value } : item))
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const payload = {
       name: name.trim(),
       price: Number(price),
       state: active,
       productos: items,
     }
-    if (isEdit) {
-      console.log('Editar producto:', { _id: producto._id, ...payload })
-    } else {
-      console.log('Crear producto:', payload)
+
+    try {
+      if (isEdit) {
+        console.log('Editar producto:', { _id: producto._id, ...payload })
+        const edit = await fetchData(url, 'PUT', producto._id, payload);
+  
+        if (edit.message) {
+          toast.success(edit.message);
+        }
+  
+      } else {
+        console.log('Crear producto:', payload)
+        const created = await fetchData(url, 'POST', undefined, payload);
+  
+        if (created.message) {
+          toast.success(created.message);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error);
     }
     onSuccess()
   }
