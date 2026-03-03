@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { fetchData } from '../../../service'
+import { fetchData } from '../../../service/index.ts';
 import { Box, Typography, CircularProgress, Chip, IconButton, Tooltip, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { esES } from '@mui/x-data-grid/locales'
@@ -8,10 +8,14 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
 import SearchIcon from '@mui/icons-material/Search'
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined'
+import TextField from '@mui/material/TextField'
 import AddEditProducto from '../../../components/client/productos/AddEditProducto'
 import DeleteProductoDialog from '../../../components/client/productos/DeleteProductoDialog'
 import { toast } from 'sonner'
 import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
+import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import CleaningServicesIcon from '@mui/icons-material/CleaningServices';
 
 const formatPrice = (price) =>
   price.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' });
@@ -23,7 +27,7 @@ const formatCantidad = (cantidad) => {
     return cantidad; // Si es un entero como 1, 2 o 3, lo deja igual
   };
 
-const getColumns = (onEdit, onDelete) => [
+const getColumns = (onEdit, onDelete, onDisable) => [
   {
     field: 'name',
     headerName: 'Nombre',
@@ -112,6 +116,11 @@ const getColumns = (onEdit, onDelete) => [
     headerAlign: 'center',
     renderCell: ({ row }) => (
       <Box>
+        <Tooltip title={ row.state ? `Desactivar '${row.name}'` : `Activar '${row.name}'` } >
+          <IconButton size="small" sx={{ color: '#005e4d' }} onClick={() => onDisable(row)}>
+            { !row.state ? <RemoveShoppingCartIcon fontSize="small" /> : <ShoppingCartIcon fontSize="small" />}
+          </IconButton>
+        </Tooltip>
         <Tooltip title={`Editar '${row.name}'`}>
           <IconButton size="small" sx={{ color: '#005e4d' }} onClick={() => onEdit(row)}>
             <EditIcon fontSize="small" />
@@ -133,16 +142,23 @@ function Productos() {
   const [productoEditado, setProductoEditado] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedProducto, setSelectedProducto] = useState(null)
-  const [filtroActivo, setFiltroActivo] = useState(true)
+  const [filtroActivo, setFiltroActivo] = useState(null)
+  const [searchName, setSearchName] = useState('')
   const [search, setSearch] = useState(false)
   const [deleteDialog, setDeleteDialog] = useState({ open: false, producto: null })
+  const [disableDialog, setDisableDialog] = useState({ open: false, productos: [] })
 
-  const url = filtroActivo ? 'productos-clientes' : 'productos-clientes/disabled';
+  let url = 'productos-clientes';
 
   useEffect(() => {
     const fetchProductos = async () => {
       try {
         setLoading(true)
+        // validando filtro activo
+        if (filtroActivo !== null) filtroActivo ? url += '?state=true' : url += '?state=false';
+        // validando filtro nombre
+        if (searchName.trim().length > 0) filtroActivo === null ? url += `?name=${searchName}` : url += `&name=${searchName}`
+        
         const res = await fetchData(url, 'GET')
         setProductos(res)
       } catch (error) {
@@ -189,7 +205,44 @@ function Productos() {
     setProductoEditado(prev => !prev)
   }
 
-  const columns = useMemo(() => getColumns(handleOpenEdit, handleOpenDelete), [handleOpenEdit, handleOpenDelete])
+  // const handleOpenDisable = useCallback((row) => {
+  //   toast.warning(`¿${row.state ? 'Desactivar' : 'Activar'}"${row.name}"?`, {
+  //     description: 'Esta acción cambiará el estado del producto.',
+  //     action: {
+  //       label: 'Desactivar',
+  //       onClick: () => changeStateProduct(row._id)
+  //     },
+  //     cancel: {
+  //       label: 'Cancelar',
+  //     },
+  //     duration: 5000,
+  //   })
+  // }, [])
+
+  async function changeStateProduct(row) {
+    try {
+      console.log('Enviando actualización:', {_id: row._id, state: !row.state});  
+      const res = await fetchData(url, 'PATCH', row._id, {state: !row.state});
+
+      if (res.message) toast.success(res.message)
+
+      setProductoEditado(prev => !prev)
+    } catch (error) {
+      console.error(error);
+      toast.error(error.message)
+    }
+  }
+
+  const clearFilters = () => {
+    setFiltroActivo(null);
+    setSearchName("");
+    setSearch(!search);
+  }
+
+  const columns = useMemo(
+    () => getColumns(handleOpenEdit, handleOpenDelete, changeStateProduct), 
+    [handleOpenEdit, handleOpenDelete, changeStateProduct]
+  )
 
   return (
     <Box>
@@ -216,18 +269,38 @@ function Productos() {
               onChange={(e) => setFiltroActivo(e.target.value)}
               sx={{ backgroundColor: 'white' }}
             >
+              <MenuItem value={null}>Todos</MenuItem>
               <MenuItem value={true}>Si</MenuItem>
               <MenuItem value={false}>No</MenuItem>
             </Select>
           </FormControl>
+
+          <TextField
+            size="small"
+            label="Buscar por nombre"
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && setSearch(prev => !prev)}
+            sx={{ backgroundColor: 'white', minWidth: 200 }}
+          />
           <Button
             variant="outlined"
             startIcon={<SearchIcon />}
             sx={{ textTransform: 'none', borderColor: '#005e4d', color: '#005e4d', backgroundColor: 'white', '&:hover': { backgroundColor: '#e8f5e9', borderColor: '#005e4d' } }}
             onClick={() => setSearch(!search)}
             loading={loading}
-          >
+            >
             Buscar
+          </Button>
+
+          <Button
+            variant="outlined"
+            startIcon={<CleaningServicesIcon />}
+            sx={{ textTransform: 'none', borderColor: '#005e4d', color: '#005e4d', backgroundColor: 'white', '&:hover': { backgroundColor: '#e8f5e9', borderColor: '#005e4d' } }}
+            onClick={clearFilters}
+            loading={loading}
+          >
+            Limpiar
           </Button>
         </Box>
       </Box>
