@@ -147,6 +147,7 @@ function Productos() {
   const [search, setSearch] = useState(false)
   const [deleteDialog, setDeleteDialog] = useState({ open: false, producto: null })
   const [disableDialog, setDisableDialog] = useState({ open: false, productos: [] })
+  const [selectedRows, setSelectedRows] = useState([])
 
   let url = 'productos-clientes';
 
@@ -233,6 +234,24 @@ function Productos() {
     }
   }
 
+  async function updateStateBulkProduct() {
+    try {
+      setLoading(true);
+
+      const res = await fetchData('productos-clientes/bulkUpdate', 'PATCH', undefined, selectedRows);
+
+      if (res.message) toast.success(res.message)
+
+      setProductoEditado(prev => !prev)
+
+    } catch (error) {
+      console.error('error:', error);
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const clearFilters = () => {
     setFiltroActivo(null);
     setSearchName("");
@@ -302,6 +321,16 @@ function Productos() {
           >
             Limpiar
           </Button>
+
+          {selectedRows.length > 0 && (
+            <Button
+              variant="contained"
+              sx={{ textTransform: 'none', backgroundColor: '#005e4d', '&:hover': { backgroundColor: '#004a3d' } }}
+              onClick={() => updateStateBulkProduct()}
+            >
+              Cambiar estados ({selectedRows.length})
+            </Button>
+          )}
         </Box>
       </Box>
 
@@ -338,7 +367,13 @@ function Productos() {
           rows={productos}
           columns={columns}
           getRowId={(row) => row._id}
-          // checkboxSelection  ← listo para selección múltiple
+          checkboxSelection
+          onRowSelectionModelChange={(model) => {
+            const ids = model.type === 'exclude'
+              ? productos.filter((p) => !model.ids.has(p._id)).map((p) => p._id)
+              : Array.from(model.ids)
+            setSelectedRows(ids.map((id) => ({ _id: id, state: productos.find((p) => p._id === id)?.state })))
+          }}
           localeText={esES.components.MuiDataGrid.defaultProps.localeText}
           disableRowSelectionOnClick
           initialState={{
