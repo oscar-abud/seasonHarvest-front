@@ -145,6 +145,9 @@ function Contacto() {
             Contacto
           </Typography>
         </Box>
+        <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
+          Modifica los contactos que se muestran al usuario
+        </Typography>
         <Button
           variant="contained"
           startIcon={<SaveIcon />}
