@@ -8,6 +8,7 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Layout from "./components/UI/layout/Layout.jsx";
 import Perfil from "./pages/sh-admin/Perfil.jsx";
 import Productos from "./pages/sh-admin/client/Productos.jsx";
+import ProductosExtras from "./pages/sh-admin/client/ProductosExtras.jsx";
 
 function App() {
   return (
@@ -38,6 +39,14 @@ function App() {
           </ProtectedRoute>
         }>
           <Route index element={<Productos />} />
+        </Route>
+
+        <Route path="/app/season-harvest/productos-extras" element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<ProductosExtras />} />
         </Route>
 
         <Route path="/app/test" element={ <Test /> } />
