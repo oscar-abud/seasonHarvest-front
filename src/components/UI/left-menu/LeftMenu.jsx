@@ -23,6 +23,7 @@ import PeopleIcon from '@mui/icons-material/People'
 import PersonIcon from '@mui/icons-material/Person'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
+import ContactPhoneIcon from '@mui/icons-material/ContactPhone'
 import ReplayIcon from '@mui/icons-material/Replay';
 import { useNavigate, useLocation } from 'react-router-dom'
 import Logo from '../../../assets/logo.png'
@@ -85,6 +86,7 @@ const menuItems = [
       { label: 'Productos Extras', icon: <AddShoppingCartIcon />, path: '/app/season-harvest/productos-extras' },
     ],
   },
+  { label: 'Contacto', icon: <ContactPhoneIcon />, path: '/app/season-harvest/contacto' },
   { label: 'Reportes', icon: <BarChartIcon />, path: '/app/season-harvest/reportes' },
   { label: 'SH Clientes', icon: <ReplayIcon />, path: '/app' },
 ]

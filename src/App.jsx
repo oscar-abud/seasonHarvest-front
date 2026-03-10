@@ -9,6 +9,7 @@ import Layout from "./components/UI/layout/Layout.jsx";
 import Perfil from "./pages/sh-admin/Perfil.jsx";
 import Productos from "./pages/sh-admin/client/Productos.jsx";
 import ProductosExtras from "./pages/sh-admin/client/ProductosExtras.jsx";
+import Contacto from "./pages/sh-admin/Contacto.jsx";
 
 function App() {
   return (
@@ -47,6 +48,14 @@ function App() {
           </ProtectedRoute>
         }>
           <Route index element={<ProductosExtras />} />
+        </Route>
+
+        <Route path="/app/season-harvest/contacto" element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<Contacto />} />
         </Route>
 
         <Route path="/app/test" element={ <Test /> } />
