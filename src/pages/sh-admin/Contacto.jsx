@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { fetchData } from '../../service/index.ts'
+import { fetchData } from '@/services/api/index'
 import {
   Box, Typography, TextField, Button, Paper,
   IconButton, Divider, CircularProgress,
@@ -9,6 +9,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone'
 import SaveIcon from '@mui/icons-material/Save'
 import { toast } from 'sonner'
+import { CONST_ENDPOINT_CONTACTO } from '@/services/api/constants';
 
 const fieldSx = {
   '& .MuiOutlinedInput-root': { '&.Mui-focused fieldset': { borderColor: '#005e4d' } },
@@ -31,7 +32,7 @@ function Contacto() {
     const fetchContact = async () => {
       try {
         setLoading(true)
-        const res = await fetchData('contacto', 'GET')
+        const res = await fetchData(CONST_ENDPOINT_CONTACTO, 'GET')
         if (res) setContact({ ...emptyContact, ...res })
       } catch (error) {
         console.error(error)
@@ -54,7 +55,7 @@ function Contacto() {
           schedule: tw.schedule.map(({ _id: sid, ...s }) => s),
         })),
       }
-      const res = await fetchData('contacto', 'POST', undefined, cleanPayload)
+      const res = await fetchData(CONST_ENDPOINT_CONTACTO, 'POST', undefined, cleanPayload)
       if (res.message) toast.success(res.message)
     } catch (error) {
       console.error(error)
