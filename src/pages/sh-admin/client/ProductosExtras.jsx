@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { fetchData } from '../../../service/index.ts'
+import { fetchData } from '@/services/api/index';
 import {
   Box, Typography, CircularProgress, Chip, IconButton,
   Tooltip, Button,
@@ -11,9 +11,10 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
 import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied'
-import AddEditExtraItem from '../../../components/client/productosExtras/AddEditExtraItem'
-import DeleteExtraItemDialog from '../../../components/client/productosExtras/DeleteExtraItemDialog'
+import AddEditExtraItem from '@/components/client/productosExtras/AddEditExtraItem';
+import DeleteExtraItemDialog from '@/components/client/productosExtras/DeleteExtraItemDialog';
 import { toast } from 'sonner'
+import { CONST_ENDPOINT_PRODUCTOS_EXTRAS } from '@/services/api/constants';
 
 const formatPrice = (price) =>
   price.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' })
@@ -109,7 +110,7 @@ function ProductosExtras() {
   const [selectedItem, setSelectedItem] = useState(null)
   const [deleteDialog, setDeleteDialog] = useState({ open: false, item: null })
 
-  const url = 'productos-extras'
+  const url = CONST_ENDPOINT_PRODUCTOS_EXTRAS;
 
   useEffect(() => {
     const fetchCatalogo = async () => {
