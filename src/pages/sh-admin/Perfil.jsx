@@ -12,8 +12,9 @@ import CloseIcon from '@mui/icons-material/Close'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import useUserStore from '../../store/store'
-import { fetchData } from '../../service'
+import { fetchData } from '@/services/api/index'
 import { toast } from 'sonner'
+import { CONST_ENDPOINT_UPDATE_USUARIO } from '@/services/api/constants'
 
 const fieldSx = {
   '& .MuiOutlinedInput-root': { '&.Mui-focused fieldset': { borderColor: '#005e4d' } },
@@ -60,7 +61,7 @@ function Perfil() {
     console.log('Guardar:', { email: editEmail, password: editPassword });
     e.preventDefault();
     try {
-      const data = await fetchData('user/update', 'PATCH', null, { email: editEmail, password: editPassword });
+      const data = await fetchData(CONST_ENDPOINT_UPDATE_USUARIO, 'PATCH', null, { email: editEmail, password: editPassword });
       if (data) {
         setUser(data.user);
         // Por si en un futuro se agrega token en el response de la api
