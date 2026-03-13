@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { fetchData } from '../../../service/index.ts';
+import { fetchData } from '@/services/api/index';
 import { Box, Typography, CircularProgress, Chip, IconButton, Tooltip, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { esES } from '@mui/x-data-grid/locales'
@@ -16,6 +16,7 @@ import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDiss
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices';
+import { CONST_ENDPOINT_PRODUCTOS_CLIENTES, CONST_ENDPOINT_PRODUCTOS_CLIENTES_BULK } from '@/services/api/constants';
 
 const formatPrice = (price) =>
   price.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' });
@@ -149,7 +150,7 @@ function Productos() {
   const [disableDialog, setDisableDialog] = useState({ open: false, productos: [] })
   const [selectedRows, setSelectedRows] = useState([])
 
-  let url = 'productos-clientes';
+  let url = CONST_ENDPOINT_PRODUCTOS_CLIENTES;
 
   useEffect(() => {
     const fetchProductos = async () => {
@@ -238,7 +239,7 @@ function Productos() {
     try {
       setLoading(true);
 
-      const res = await fetchData('productos-clientes/bulkUpdate', 'PATCH', undefined, selectedRows);
+      const res = await fetchData(CONST_ENDPOINT_PRODUCTOS_CLIENTES_BULK, 'PATCH', undefined, selectedRows);
 
       if (res.message) toast.success(res.message)
 
