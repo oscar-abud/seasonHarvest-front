@@ -4,11 +4,12 @@ import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 import { toast } from 'sonner';
 import { useState } from 'react';
-import { fetchData } from '../service/index';
-import useUserStore from '../store/store';
+import { fetchData } from '@/services/api/index';
+import useUserStore from '@/store/store';
 import { useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
-import Logo from '../assets/logo.png';
+import Header from '@/components/Header';
+import Logo from '@/assets/logo.png';
+import { CONST_ENDPOINT_LOGIN_USUARIO } from '@/services/api/constants';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -43,7 +44,7 @@ function Login() {
     if (!validate()) return;
     setLoading(true);
     try {
-      const data = await fetchData('usuario/login', 'POST', null, { email, password });
+      const data = await fetchData(CONST_ENDPOINT_LOGIN_USUARIO, 'POST', null, { email, password });
       if (data) {
         setUser(data.user);
         if (data.token) {
