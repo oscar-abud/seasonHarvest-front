@@ -2,12 +2,13 @@ import { Box, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActi
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import { toast } from 'sonner'
 import { useState } from 'react';
-import { fetchData } from '../../../service';
+import { fetchData } from '@/services/api/index';
+import { CONST_ENDPOINT_PRODUCTOS_CLIENTES } from '@/services/api/constants';
 
 function DeleteProductoDialog({ open, producto, onClose, onSuccess }) {
   const [deleting, setDeleting] = useState(false);
 
-  const url = 'productos-clientes';
+  const url = CONST_ENDPOINT_PRODUCTOS_CLIENTES;
 
   async function deleteProduct() {
     try {

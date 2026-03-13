@@ -8,8 +8,9 @@ import CloseIcon from '@mui/icons-material/Close'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined'
-import { fetchData } from '../../../service'
+import { fetchData } from '@/services/api/index'
 import { toast } from 'sonner'
+import { CONST_ENDPOINT_PRODUCTOS_CLIENTES } from '@/services/api/constants'
 
 const fieldSx = {
   '& .MuiOutlinedInput-root': { '&.Mui-focused fieldset': { borderColor: '#005e4d' } },
@@ -20,7 +21,7 @@ const TIPOS = ['kg', 'un', 'trozos']
 
 function AddEditProducto({ open, onClose, onSuccess, producto = null }) {
   const isEdit = Boolean(producto?._id)
-  const url = 'productos-clientes'
+  const url = CONST_ENDPOINT_PRODUCTOS_CLIENTES
 
   const [name, setName] = useState('')
   const [price, setPrice] = useState('')
