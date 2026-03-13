@@ -1,7 +1,7 @@
 import axios, { AxiosError } from "axios";
 import { toast } from 'sonner';
 
-export const API_URL = 'http://localhost:8080';
+export const API_URL: string | undefined = import.meta.env.VITE_API_URL;
 
 export const fetchData = async (
   endpoint: string,
