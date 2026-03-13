@@ -1,6 +1,4 @@
 import axios, { AxiosError } from "axios";
-import { Snackbar } from "@mui/material";
-import { useState } from "react";
 import { toast } from 'sonner';
 
 export const API_URL = 'http://localhost:8080';
